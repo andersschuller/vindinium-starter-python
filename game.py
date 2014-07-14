@@ -14,13 +14,16 @@ AIM = {'North': (-1, 0),
        'South': (1, 0),
        'West': (0, -1)}
 
+
 class HeroTile:
     def __init__(self, id):
         self.id = id
 
+
 class MineTile:
-    def __init__(self, heroId = None):
-        self.heroId = heroId
+    def __init__(self, hero_id=None):
+        self.hero_id = hero_id
+
 
 class Game:
     def __init__(self, state):
@@ -34,58 +37,60 @@ class Game:
             for col in range(len(self.board.tiles[row])):
                 obj = self.board.tiles[row][col]
                 if isinstance(obj, MineTile):
-                    self.mines_locs[(row, col)] = obj.heroId
+                    self.mines_locs[(row, col)] = obj.hero_id
                 elif isinstance(obj, HeroTile):
                     self.heroes_locs[(row, col)] = obj.id
-                elif (obj == TAVERN):
+                elif obj == TAVERN:
                     self.taverns_locs.add((row, col))
 
 
-
 class Board:
-    def __parseTile(self, str):
-        if (str == '  '):
+    def __parse_tile(self, tile):
+        if tile == '  ':
             return AIR
-        if (str == '##'):
+        if tile == '##':
             return WALL
-        if (str == '[]'):
+        if tile == '[]':
             return TAVERN
-        match = re.match('\$([-0-9])', str)
-        if (match):
+        match = re.match('\$([-0-9])', tile)
+        if match:
             return MineTile(match.group(1))
-        match = re.match('\@([0-9])', str)
-        if (match):
+        match = re.match('@([0-9])', tile)
+        if match:
             return HeroTile(match.group(1))
 
-    def __parseTiles(self, tiles):
-        vector = [tiles[i:i+2] for i in range(0, len(tiles), 2)]
-        matrix = [vector[i:i+self.size] for i in range(0, len(vector), self.size)]
+    def __parse_tiles(self, tiles):
+        vector = [tiles[i:i + 2] for i in range(0, len(tiles), 2)]
+        matrix = [vector[i:i + self.size] for i in range(0, len(vector), self.size)]
 
-        return [[self.__parseTile(x) for x in xs] for xs in matrix]
+        return [[self.__parse_tile(x) for x in xs] for xs in matrix]
 
     def __init__(self, board):
         self.size = board['size']
-        self.tiles = self.__parseTiles(board['tiles'])
+        self.tiles = self.__parse_tiles(board['tiles'])
 
     def passable(self, loc):
-        'true if can not walk through'
+        """True if can not walk through"""
         x, y = loc
         pos = self.tiles[x][y]
         return (pos != WALL) and (pos != TAVERN) and not isinstance(pos, MineTile)
 
     def to(self, loc, direction):
-        'calculate a new location given the direction'
+        """Calculate a new location given the direction"""
         row, col = loc
         d_row, d_col = AIM[direction]
         n_row = row + d_row
-        if (n_row < 0): n_row = 0
-        if (n_row > self.size): n_row = self.size
+        if n_row < 0:
+            n_row = 0
+        if n_row > self.size:
+            n_row = self.size
         n_col = col + d_col
-        if (n_col < 0): n_col = 0
-        if (n_col > self.size): n_col = self.size
+        if n_col < 0:
+            n_col = 0
+        if n_col > self.size:
+            n_col = self.size
 
-        return (n_row, n_col)
-
+        return n_row, n_col
 
 
 class Hero:
@@ -94,4 +99,3 @@ class Hero:
         self.pos = hero['pos']
         self.life = hero['life']
         self.gold = hero['gold']
-
