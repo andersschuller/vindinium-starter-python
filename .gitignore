@@ -2,3 +2,5 @@
 *.pot
 *.pyc
 venv
+env
+.idea
